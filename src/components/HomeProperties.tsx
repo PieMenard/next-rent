@@ -1,8 +1,24 @@
-import properties from '@/properties.json';
 import PropertyCard from './PropertyCard';
 import Link from 'next/link';
 
-const HomeProperties = () => {
+async function fetchProperties() {
+  try {
+    const res = await fetch('http://localhost:3000/api/properties');
+    if (!res.ok) {
+      throw new Error('Failed to fetch data');
+    }
+    return res.json();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const HomeProperties = async () => {
+  const properties = await fetchProperties();
+
+  properties.sort(
+    (a: any, b: any) => +new Date(b.createdAt) - +new Date(a.createdAt)
+  );
   const recentProperties = properties.sort(() => Math.random()).slice(0, 3);
 
   return (
@@ -16,7 +32,7 @@ const HomeProperties = () => {
             {recentProperties.length === 0 ? (
               <p>No Properties to show</p>
             ) : (
-              recentProperties.map((property) => (
+              recentProperties.map((property: any) => (
                 <PropertyCard key={property._id} property={property} />
               ))
             )}
